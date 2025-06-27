@@ -1,7 +1,7 @@
 
-# 🎤 Verba — Your AI Communication Coach
+# 🎤 Aurify — Your AI Communication Coach
 
-**Verba** is an AI-powered web app that helps you prepare for interviews, meetings, and presentations by analyzing your speaking performance. Just record yourself answering a prompt, and Verba gives you structured feedback on clarity, confidence, pacing, and more — all in under a minute.
+**Aurify** is an AI-powered web app that helps you prepare for interviews, meetings, and presentations by analyzing your speaking performance. Just record yourself answering a prompt, and Verba gives you structured feedback on clarity, confidence, pacing, and more — all in under a minute.
 
 ---
 
@@ -38,5 +38,6 @@
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/your-username/verba.git
-cd verba
+git clone https://github.com/sarakhan7/aurify.git
+cd aurify
+
