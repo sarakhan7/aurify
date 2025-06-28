@@ -10,10 +10,10 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "firebase": "^10.14.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.0",
-    "firebase": "^10.7.0"
+    "react-router-dom": "^6.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -29,7 +29,14 @@
     "type": "git",
     "url": "git+https://github.com/sarakhan7/aurify.git"
   },
-  "keywords": ["ai", "communication", "coach", "interview", "public-speaking", "react"],
+  "keywords": [
+    "ai",
+    "communication",
+    "coach",
+    "interview",
+    "public-speaking",
+    "react"
+  ],
   "author": "Sara Khan",
   "license": "MIT",
   "bugs": {

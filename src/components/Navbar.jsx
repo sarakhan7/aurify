@@ -4,8 +4,33 @@ import { useAuth } from '../App'
 import { signOut } from 'firebase/auth'
 
 const Navbar = () => {
-  const { user, auth } = useAuth()
   const navigate = useNavigate()
+  
+  // Add error handling for useAuth
+  let user = null
+  let auth = null
+  
+  try {
+    const authContext = useAuth()
+    user = authContext.user
+    auth = authContext.auth
+  } catch (error) {
+    console.error('Error accessing auth context:', error)
+    // Return a simple navbar without auth features
+    return (
+      <nav className="navbar" style={{background: 'rgba(31,11,63,0.85)', borderBottom: '1px solid #2d1b69', position: 'sticky', top: 0, zIndex: 100}}>
+        <div className="container flex justify-between items-center" style={{height: '64px'}}>
+          <Link to="/" className="navbar-logo gradient-text font-bold text-xl" style={{fontSize: '2rem', letterSpacing: '0.05em'}}>Aurify</Link>
+          <div className="navbar-links flex gap-md items-center">
+            <a href="#about" className="nav-link text-base font-medium">About</a>
+            <a href="#features" className="nav-link text-base font-medium">Features</a>
+            <a href="#contact" className="nav-link text-base font-medium">Contact</a>
+            <Link to="/auth" className="btn btn-primary animate-glow">Login</Link>
+          </div>
+        </div>
+      </nav>
+    )
+  }
 
   const handleLogout = async () => {
     try {

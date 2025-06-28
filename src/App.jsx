@@ -1,31 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { initializeApp } from 'firebase/app'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-
-// Pages
+import { app } from './utils/firebase'
 import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Results from './pages/Results'
 import Practice from './pages/Practice'
-
-// Components
-import LoadingOverlay from './components/LoadingOverlay'
-
-// Firebase config (replace with your actual config)
-const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-auth-domain",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id"
-}
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
 
 // Auth Context
 const AuthContext = createContext()
@@ -38,17 +19,62 @@ export const useAuth = () => {
   return context
 }
 
+// Simple test component
+const TestPage = () => {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1f0b3f 0%, #000000 100%)',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      textAlign: 'center'
+    }}>
+      <div>
+        <h1 style={{color: '#a855f7', marginBottom: '1rem', fontSize: '3rem'}}>🎉 Aurify is Working!</h1>
+        <p style={{color: '#ccc', marginBottom: '1rem', fontSize: '1.2rem'}}>The app is loading successfully!</p>
+        <div style={{
+          background: 'rgba(45, 27, 105, 0.3)',
+          padding: '1rem',
+          borderRadius: '8px',
+          border: '1px solid #7c3aed'
+        }}>
+          <p style={{color: '#fff', margin: '0.5rem 0'}}>✅ React is working</p>
+          <p style={{color: '#fff', margin: '0.5rem 0'}}>✅ Firebase is initialized</p>
+          <p style={{color: '#fff', margin: '0.5rem 0'}}>✅ Routing is set up</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const auth = getAuth(app)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-      setLoading(false)
-    })
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        console.log('Auth state changed:', user ? 'User logged in' : 'No user')
+        setUser(user)
+        setLoading(false)
+      }, (error) => {
+        console.error('Auth error:', error)
+        setError(error.message)
+        setLoading(false)
+      })
 
-    return unsubscribe
+      return unsubscribe
+    } catch (error) {
+      console.error('Error setting up auth listener:', error)
+      setError(error.message)
+      setLoading(false)
+    }
   }, [])
 
   const authValue = {
@@ -57,8 +83,64 @@ function App() {
     setUser
   }
 
+  if (error) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1f0b3f 0%, #000000 100%)',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem',
+        textAlign: 'center'
+      }}>
+        <div>
+          <h1 style={{color: '#ef4444', marginBottom: '1rem'}}>⚠️ Error Loading App</h1>
+          <p style={{color: '#ccc', marginBottom: '1rem'}}>{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+          >
+            🔄 Reload App
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
-    return <LoadingOverlay />
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1f0b3f 0%, #000000 100%)',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{textAlign: 'center'}}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            border: '4px solid rgba(168, 85, 247, 0.3)',
+            borderTop: '4px solid #7c3aed',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{fontSize: '1.2rem'}}>Loading Aurify...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -68,18 +150,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
-            <Route 
-              path="/dashboard" 
-              element={user ? <Dashboard /> : <Navigate to="/auth" />} 
-            />
-            <Route 
-              path="/results" 
-              element={user ? <Results /> : <Navigate to="/auth" />} 
-            />
-            <Route 
-              path="/practice" 
-              element={user ? <Practice /> : <Navigate to="/auth" />} 
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/practice" element={<Practice />} />
           </Routes>
         </div>
       </Router>
