@@ -1,5 +1,5 @@
 // Firestore Utilities for Aurify
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, doc, deleteDoc } from 'firebase/firestore'
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, doc, deleteDoc, setDoc, updateDoc, getDoc } from 'firebase/firestore'
 import { app } from './firebase'
 
 export const db = getFirestore(app)
@@ -185,5 +185,138 @@ export const updateSession = async (sessionId, updates) => {
   } catch (error) {
     console.error('Error updating session:', error)
     throw new Error('Failed to update session')
+  }
+}
+
+// User Profile Management
+export const createUserProfile = async (userId, userData) => {
+  try {
+    const profileData = {
+      uid: userId,
+      email: userData.email || '',
+      displayName: userData.displayName || '',
+      photoURL: userData.photoURL || '',
+      plan: 'free',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      // Profile fields
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      bio: '',
+      location: '',
+      occupation: '',
+      company: '',
+      experience: 'beginner', // beginner, intermediate, advanced
+      goals: [],
+      preferences: {
+        notifications: true,
+        emailUpdates: true,
+        practiceReminders: true,
+        weeklyReports: true
+      },
+      stats: {
+        totalSessions: 0,
+        totalPracticeTime: 0,
+        averageScore: 0,
+        streakDays: 0,
+        lastPracticeDate: null
+      }
+    }
+
+    await setDoc(doc(db, 'users', userId), profileData)
+    console.log('User profile created:', userId)
+    return profileData
+  } catch (error) {
+    console.error('Error creating user profile:', error)
+    throw new Error('Failed to create user profile')
+  }
+}
+
+export const getUserProfile = async (userId) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId))
+    if (userDoc.exists()) {
+      return userDoc.data()
+    } else {
+      return null
+    }
+  } catch (error) {
+    console.error('Error fetching user profile:', error)
+    throw new Error('Failed to fetch user profile')
+  }
+}
+
+export const updateUserProfile = async (userId, updates) => {
+  try {
+    const updateData = {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    }
+    
+    await updateDoc(doc(db, 'users', userId), updateData)
+    console.log('User profile updated:', userId)
+    return true
+  } catch (error) {
+    console.error('Error updating user profile:', error)
+    throw new Error('Failed to update user profile')
+  }
+}
+
+export const updateUserStats = async (userId, sessionData) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId))
+    if (!userDoc.exists()) {
+      throw new Error('User profile not found')
+    }
+
+    const currentProfile = userDoc.data()
+    const currentStats = currentProfile.stats || {}
+    
+    // Calculate new stats
+    const newStats = {
+      totalSessions: (currentStats.totalSessions || 0) + 1,
+      totalPracticeTime: (currentStats.totalPracticeTime || 0) + (sessionData.duration || 0),
+      averageScore: calculateNewAverage(currentStats.averageScore, currentStats.totalSessions, sessionData.scores),
+      streakDays: calculateStreak(currentStats.lastPracticeDate),
+      lastPracticeDate: new Date().toISOString()
+    }
+
+    await updateDoc(doc(db, 'users', userId), {
+      stats: newStats,
+      updatedAt: new Date().toISOString()
+    })
+
+    return newStats
+  } catch (error) {
+    console.error('Error updating user stats:', error)
+    throw new Error('Failed to update user stats')
+  }
+}
+
+const calculateNewAverage = (currentAvg, totalSessions, newScores) => {
+  if (!newScores) return currentAvg || 0
+  
+  const newScore = (newScores.clarity + newScores.confidence + newScores.engagement + newScores.structure) / 4
+  const currentTotal = (currentAvg || 0) * totalSessions
+  const newTotal = currentTotal + newScore
+  
+  return Math.round(newTotal / (totalSessions + 1))
+}
+
+const calculateStreak = (lastPracticeDate) => {
+  if (!lastPracticeDate) return 1
+  
+  const lastDate = new Date(lastPracticeDate)
+  const today = new Date()
+  const diffTime = Math.abs(today - lastDate)
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  // If last practice was yesterday, increment streak
+  if (diffDays === 1) {
+    return 1 // This will be added to existing streak
+  } else if (diffDays === 0) {
+    return 0 // Same day, don't increment
+  } else {
+    return 1 // Reset streak
   }
 } 

@@ -2,11 +2,19 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { app } from './utils/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from './utils/firestore'
+import { createUserProfile } from './utils/firestore'
 import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Results from './pages/Results'
 import Practice from './pages/Practice'
+import Profile from './pages/Profile'
+import Upgrade from './pages/Upgrade'
+import Pricing from './pages/Pricing'
+import Terms from './pages/Terms'
+import Privacy from './pages/Privacy'
 
 // Auth Context
 const AuthContext = createContext()
@@ -52,35 +60,61 @@ const TestPage = () => {
 
 function App() {
   const [user, setUser] = useState(null)
+  const [userPlan, setUserPlan] = useState('free')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const auth = getAuth(app)
 
   useEffect(() => {
+    let unsubscribe
     try {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        console.log('Auth state changed:', user ? 'User logged in' : 'No user')
+      unsubscribe = onAuthStateChanged(auth, async (user) => {
         setUser(user)
         setLoading(false)
+        if (user) {
+          // Load user profile from Firestore
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid))
+            if (userDoc.exists()) {
+              setUserPlan(userDoc.data().plan || 'free')
+            } else {
+              // Create new user profile if it doesn't exist
+              try {
+                await createUserProfile(user.uid, {
+                  email: user.email,
+                  displayName: user.displayName,
+                  photoURL: user.photoURL
+                })
+                setUserPlan('free')
+              } catch (profileError) {
+                console.error('Error creating user profile:', profileError)
+                setUserPlan('free')
+              }
+            }
+          } catch (e) {
+            setUserPlan('free')
+          }
+        } else {
+          setUserPlan('free')
+        }
       }, (error) => {
-        console.error('Auth error:', error)
         setError(error.message)
         setLoading(false)
       })
-
-      return unsubscribe
     } catch (error) {
-      console.error('Error setting up auth listener:', error)
       setError(error.message)
       setLoading(false)
     }
+    return () => unsubscribe && unsubscribe()
   }, [])
 
   const authValue = {
     user,
     auth,
-    setUser
+    setUser,
+    userPlan,
+    setUserPlan
   }
 
   if (error) {
@@ -153,6 +187,11 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/results" element={<Results />} />
             <Route path="/practice" element={<Practice />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/upgrade" element={<Upgrade />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
           </Routes>
         </div>
       </Router>

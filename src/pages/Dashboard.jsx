@@ -7,7 +7,7 @@ import ScoreMeter from '../components/ScoreMeter'
 import FeedbackCard from '../components/FeedbackCard'
 import LoadingOverlay from '../components/LoadingOverlay'
 import { enhancedSpeechAnalysis, generateEnhancedFeedback, getDailyQuote } from '../utils/api'
-import { savePracticeSession } from '../utils/firestore'
+import { savePracticeSession, getUserProfile, updateUserStats } from '../utils/firestore'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -21,20 +21,28 @@ const Dashboard = () => {
   const [dailyQuote, setDailyQuote] = useState(null)
   const [analysisDetails, setAnalysisDetails] = useState({})
   const [saveStatus, setSaveStatus] = useState('')
+  const [userProfile, setUserProfile] = useState(null)
 
-  // Load daily quote on component mount
+  // Load daily quote and user profile on component mount
   useEffect(() => {
-    const loadDailyQuote = async () => {
+    const loadData = async () => {
       try {
+        // Load daily quote
         const quote = await getDailyQuote()
         setDailyQuote(quote)
+        
+        // Load user profile
+        if (user) {
+          const profile = await getUserProfile(user.uid)
+          setUserProfile(profile)
+        }
       } catch (error) {
-        console.error('Error loading daily quote:', error)
+        console.error('Error loading data:', error)
       }
     }
     
-    loadDailyQuote()
-  }, [])
+    loadData()
+  }, [user])
 
   const handleRecordingComplete = async (audioBlob, transcriptText) => {
     setIsProcessing(true)
@@ -94,6 +102,16 @@ const Dashboard = () => {
       }
       
       await savePracticeSession(sessionData)
+      
+      // Update user stats
+      if (userProfile) {
+        const newStats = await updateUserStats(user.uid, {
+          scores,
+          duration: Math.round(transcript.split(' ').length / 150) // Estimate duration in minutes
+        })
+        setUserProfile(prev => prev ? { ...prev, stats: newStats } : null)
+      }
+      
       setSaveStatus('saved')
       
       // Reset status after 3 seconds
@@ -134,6 +152,13 @@ const Dashboard = () => {
     }
   }
 
+  const formatTime = (minutes) => {
+    if (!minutes) return '0 min'
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+  }
+
   return (
     <>
       <Navbar />
@@ -141,9 +166,48 @@ const Dashboard = () => {
       
       <main className="container" style={{paddingTop: '2rem', paddingBottom: '2rem'}}>
         <div className="dashboard-header">
-          <h1 className="text-3xl font-bold gradient-text mb-0">Welcome back, {user?.displayName || 'User'}!</h1>
+          <h1 className="text-3xl font-bold gradient-text mb-0">
+            Welcome back, {userProfile?.firstName || user?.displayName || 'User'}!
+          </h1>
           <p className="text-lg mt-0" style={{color: '#ccc'}}>Ready to practice your communication skills?</p>
         </div>
+
+        {/* User Stats Section */}
+        {userProfile?.stats && (
+          <div className="stats-section card" style={{
+            marginBottom: '2rem',
+            background: 'linear-gradient(135deg, rgba(45, 27, 105, 0.3) 0%, rgba(26, 26, 26, 0.8) 100%)',
+            border: '1px solid rgba(168, 85, 247, 0.3)'
+          }}>
+            <h3 className="text-lg font-bold gradient-text mb-4">📊 Your Progress</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">
+                  {userProfile.stats.totalSessions || 0}
+                </div>
+                <div className="text-sm text-purple-200">Sessions</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">
+                  {formatTime(userProfile.stats.totalPracticeTime || 0)}
+                </div>
+                <div className="text-sm text-purple-200">Practice Time</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">
+                  {userProfile.stats.averageScore || 0}%
+                </div>
+                <div className="text-sm text-purple-200">Avg Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">
+                  {userProfile.stats.streakDays || 0}
+                </div>
+                <div className="text-sm text-purple-200">Day Streak</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Daily Quote Section */}
         {dailyQuote && (

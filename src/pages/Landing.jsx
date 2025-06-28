@@ -1,5 +1,6 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
+import { Link } from 'react-router-dom'
 
 const Landing = () => {
   return (
@@ -14,15 +15,35 @@ const Landing = () => {
         </section>
 
         {/* About Section */}
-        <section id="about" className="section container animate-fade-in">
-          <h2 className="text-3xl font-bold mb-0 gradient-text">About Us</h2>
-          <p className="text-lg mt-0" style={{color: '#ccc'}}>Aurify helps you become a more confident, clear, and engaging speaker—powered by the latest AI.</p>
+        <section id="about" className="section container animate-fade-in" style={{textAlign: 'center', margin: '0 auto', maxWidth: 800, padding: '3rem 0 2rem 0'}}>
+          <h2 className="text-3xl font-bold mb-0 gradient-text" style={{marginBottom: '1.2rem'}}>About Us</h2>
+          <p className="text-lg mt-0" style={{color: '#ccc', marginBottom: '1.5rem', lineHeight: 1.7}}>
+            <b>Aurify</b> is your personal AI-powered communication coach, designed to help you become a more confident, clear, and engaging speaker. Whether you're preparing for interviews, public speaking, or everyday conversations, Aurify uses advanced AI to analyze your speech, provide instant feedback, and track your progress over time.<br /><br />
+            Our platform combines real-time speech recognition, natural language processing, and actionable insights to empower you to communicate your best self—anytime, anywhere.
+          </p>
+          <div style={{display: 'flex', justifyContent: 'center', gap: '2.5rem', flexWrap: 'wrap', marginTop: '2rem'}}>
+            <div style={{minWidth: 180}}>
+              <span style={{fontSize: '2.2rem'}}>🤖</span>
+              <div style={{color: '#a855f7', fontWeight: 600, marginTop: 8}}>AI-Powered Feedback</div>
+            </div>
+            <div style={{minWidth: 180}}>
+              <span style={{fontSize: '2.2rem'}}>🎤</span>
+              <div style={{color: '#a855f7', fontWeight: 600, marginTop: 8}}>Speech Practice</div>
+            </div>
+            <div style={{minWidth: 180}}>
+              <span style={{fontSize: '2.2rem'}}>📈</span>
+              <div style={{color: '#a855f7', fontWeight: 600, marginTop: 8}}>Progress Tracking</div>
+            </div>
+          </div>
         </section>
 
         {/* Mission Section */}
-        <section className="section container animate-fade-in">
-          <h2 className="text-2xl font-semibold mb-0 gradient-text">Our Mission</h2>
-          <p className="text-base mt-0" style={{color: '#ccc'}}>Empowering everyone to communicate with clarity and confidence, anywhere.</p>
+        <section className="section container animate-fade-in" style={{textAlign: 'center', margin: '0 auto', maxWidth: 800, padding: '2rem 0 2rem 0'}}>
+          <h2 className="text-2xl font-semibold mb-0 gradient-text" style={{marginBottom: '1.2rem'}}>Our Mission</h2>
+          <p className="text-base mt-0" style={{color: '#ccc', fontSize: '1.15rem', lineHeight: 1.7}}>
+            <b>Empowering everyone to communicate with clarity and confidence, anywhere.</b><br /><br />
+            We believe that great communication is a superpower. Our mission is to make world-class speaking and presentation skills accessible to all—regardless of background, experience, or resources. With Aurify, you can practice, improve, and shine in every conversation.
+          </p>
         </section>
 
         {/* How It Works Section */}
@@ -68,47 +89,41 @@ const Landing = () => {
         </section>
 
         {/* Plugin Teaser Section */}
-        <section className="section container animate-fade-in">
-          <h2 className="text-2xl font-semibold mb-0 gradient-text">Coming Soon: Aurify Live Plugin</h2>
-          <div className="card flex flex-col items-center justify-center" style={{maxWidth: 500, margin: '0 auto'}}>
-            <div className="flex gap-md items-center mb-0">
-              <span style={{fontSize: '2rem'}}>🧩</span>
-              <span className="font-semibold text-lg">Zoom & Chrome Plugin</span>
+        <section className="section container animate-fade-in" style={{textAlign: 'center', margin: '0 auto', maxWidth: 700, padding: '2.5rem 0'}}>
+          <h2 className="text-2xl font-semibold mb-0 gradient-text" style={{marginBottom: '1.2rem'}}>Coming Soon: Aurify Live Plugin</h2>
+          <div className="card" style={{maxWidth: 480, margin: '0 auto', padding: '2rem 1.5rem', boxShadow: '0 4px 32px #a855f733'}}>
+            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 10}}>
+              <span style={{fontSize: '2.2rem'}}>🧩</span>
+              <span className="font-semibold text-lg" style={{fontSize: '1.25rem', color: '#a855f7'}}>Zoom & Chrome Plugin</span>
             </div>
-            <p className="text-base mt-0" style={{color: '#ccc'}}>Real-time feedback overlay, emoji tone indicators, and plugin toolbar for live meetings.</p>
-            <div className="glass" style={{padding: '1rem', borderRadius: 12, marginTop: 8, width: '100%', textAlign: 'center'}}>
-              <span className="animate-pulse" style={{fontSize: '1.5rem'}}>🔴 Live Mode (Mock UI)</span>
-              <div className="flex gap-md justify-center mt-0" style={{marginTop: 8}}>
-                <span style={{fontSize: '1.2rem'}}>😊</span>
-                <span style={{fontSize: '1.2rem'}}>😐</span>
-                <span style={{fontSize: '1.2rem'}}>😮</span>
-                <span style={{fontSize: '1.2rem'}}>🤔</span>
+            <p className="text-base mt-0" style={{color: '#ccc', marginBottom: 18}}>Real-time feedback overlay, emoji tone indicators, and plugin toolbar for live meetings.</p>
+            <div className="glass" style={{padding: '1.2rem', borderRadius: 14, marginTop: 8, width: '100%', textAlign: 'center', background: 'rgba(45,27,105,0.18)', boxShadow: '0 2px 16px #a855f722'}}>
+              <span className="animate-pulse" style={{fontSize: '1.3rem', color: '#ef4444', fontWeight: 600, marginBottom: 8, display: 'block'}}>🔴 Live Mode (Mock UI)</span>
+              <div style={{display: 'flex', justifyContent: 'center', gap: 10, margin: '10px 0'}}>
+                <span style={{fontSize: '1.3rem'}}>😊</span>
+                <span style={{fontSize: '1.3rem'}}>😐</span>
+                <span style={{fontSize: '1.3rem'}}>😮</span>
+                <span style={{fontSize: '1.3rem'}}>🤔</span>
               </div>
-              <div className="flex gap-md justify-center mt-0" style={{marginTop: 8}}>
-                <button className="btn btn-secondary btn-sm" style={{fontSize: '0.9rem'}}>Mute</button>
-                <button className="btn btn-secondary btn-sm" style={{fontSize: '0.9rem'}}>End</button>
+              <div style={{display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10}}>
+                <button className="btn btn-secondary btn-sm" style={{fontSize: '0.95rem', minWidth: 80}}>Mute</button>
+                <button className="btn btn-secondary btn-sm" style={{fontSize: '0.95rem', minWidth: 80}}>End</button>
               </div>
             </div>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="section container animate-fade-in">
-          <h2 className="text-2xl font-semibold mb-0 gradient-text">Contact Us</h2>
-          <form className="card flex flex-col gap-md" style={{maxWidth: 500, margin: '0 auto'}}>
-            <input className="input" type="text" placeholder="Your Name" required />
-            <input className="input" type="email" placeholder="Your Email" required />
-            <textarea className="input" placeholder="Your Message" rows={4} required></textarea>
-            <button className="btn btn-primary animate-glow" type="submit">Send Message</button>
-          </form>
-          <div className="text-center text-sm mt-0" style={{color: '#aaa', marginTop: 16}}>
-            Or email us: <a href="mailto:sara@aurify.app" style={{color: '#a855f7'}}>sara@aurify.app</a>
-          </div>
-        </section>
+        {/* Removed the big contact us button as requested */}
+
       </main>
       {/* Footer */}
       <footer className="section text-center text-sm" style={{color: '#aaa', borderTop: '1px solid #2d1b69', marginTop: 32}}>
-        <div>© 2025 Aurify &nbsp;|&nbsp; <a href="mailto:sara@aurify.app" style={{color: '#a855f7'}}>sara@aurify.app</a> &nbsp;|&nbsp; <a href="#" style={{color: '#a855f7'}}>Terms</a> &nbsp;|&nbsp; <a href="#" style={{color: '#a855f7'}}>Privacy</a></div>
+        <div>
+          © 2025 Aurify &nbsp;|&nbsp; <a href="mailto:sara@aurify.app" style={{color: '#a855f7'}}>Contact Us</a> &nbsp;|&nbsp; 
+          <Link to="/terms" style={{color: '#a855f7'}}>Terms</Link> &nbsp;|&nbsp; 
+          <Link to="/privacy" style={{color: '#a855f7'}}>Privacy</Link>
+        </div>
       </footer>
     </>
   )
