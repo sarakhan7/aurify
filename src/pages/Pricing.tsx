@@ -37,7 +37,7 @@ const Pricing = () => {
 
       <section className="grid gap-6 md:grid-cols-3">
         {tiers.map((t) => (
-          <Card key={t.name} className={t.featured ? "border-primary" : undefined}>
+          <Card key={t.name} className={`${t.featured ? "border-primary" : ""} transition-transform duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)]`}>
             <CardHeader>
               <CardTitle>{t.name}</CardTitle>
               <CardDescription>{t.desc}</CardDescription>

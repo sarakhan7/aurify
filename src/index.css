@@ -54,6 +54,9 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(256 84% 64%));
     --gradient-subtle: linear-gradient(180deg, hsl(210 40% 99%), hsl(210 40% 96%));
     --shadow-elegant: 0 12px 30px -12px hsl(252 85% 60% / 0.35);
+
+    /* Background jellyfish color */
+    --jellyfish: 200 80% 70%;
   }
 
   .dark {
@@ -94,6 +97,26 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 4% 16%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Background jellyfish color (dark mode) */
+    --jellyfish: 265 70% 75%;
+  }
+
+  /* Dark theme palettes (variant overrides) */
+  .dark[data-dark='blue'] {
+    --primary: 210 90% 60%;
+    --ring: 210 90% 60%;
+    --accent: 200 70% 50%;
+  }
+  .dark[data-dark='purple'] {
+    --primary: 268 90% 70%;
+    --ring: 268 90% 70%;
+    --accent: 260 70% 55%;
+  }
+  .dark[data-dark='mono'] {
+    --primary: 0 0% 98%;
+    --ring: 0 0% 98%;
+    --accent: 0 0% 70%;
   }
 }
 

@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import JellyfishAvatar from "@/components/branding/JellyfishAvatar";
+import BackgroundJellies from "@/components/branding/BackgroundJellies";
 import { useSEO } from "@/hooks/use-seo";
 import { CheckCircle2, MessageSquare, Sparkles, Mic2, PlayCircle } from "lucide-react";
 
 const FeatureCard = ({ title, desc, icon: Icon }: { title: string; desc: string; icon: any }) => (
-  <Card className="animate-fade-in">
+  <Card className="animate-fade-in transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elegant)]">
     <CardHeader>
       <CardTitle className="flex items-center gap-2"><Icon /> {title}</CardTitle>
       <CardDescription>{desc}</CardDescription>
@@ -24,6 +25,7 @@ const Index = () => {
       {/* Hero */}
       <header className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-subtle" aria-hidden="true" />
+        <BackgroundJellies />
         <section className="container mx-auto max-w-6xl px-4 pt-20 pb-16 text-center">
           <div className="mx-auto mb-8 max-w-2xl">
             <h1 className="text-balance text-4xl font-semibold sm:text-5xl">Aurify: AI Communication Coach</h1>

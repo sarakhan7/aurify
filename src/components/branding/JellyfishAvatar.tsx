@@ -3,9 +3,10 @@ import jellyfish from "@/assets/jellyfish.png";
 interface JellyfishAvatarProps {
   speaking?: boolean;
   size?: number;
+  circular?: boolean;
 }
 
-const JellyfishAvatar = ({ speaking = false, size = 160 }: JellyfishAvatarProps) => {
+const JellyfishAvatar = ({ speaking = false, size = 160, circular = false }: JellyfishAvatarProps) => {
   return (
     <div
       className="relative mx-auto select-none"
@@ -28,7 +29,7 @@ const JellyfishAvatar = ({ speaking = false, size = 160 }: JellyfishAvatarProps)
         width={size}
         height={size}
         alt="Floating jellyfish avatar"
-        className="relative z-10 drop-shadow-md animate-float"
+        className={`relative z-10 drop-shadow-md animate-float ${circular ? "rounded-full ring-1 ring-primary/30" : ""}`}
         loading="lazy"
       />
     </div>
