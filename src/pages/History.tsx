@@ -1,8 +1,8 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import JellyfishAvatar from "@/components/branding/JellyfishAvatar";
 import { useSEO } from "@/hooks/use-seo";
-
 const History = () => {
   useSEO({
     title: "History – Aurify",

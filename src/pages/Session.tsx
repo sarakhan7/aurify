@@ -81,6 +81,21 @@ const Session = () => {
   const [transcript, setTranscript] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [voice, setVoice] = useState("male"); // male | female | animal
+  const [responses, setResponses] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const [coachName, setCoachName] = useState("Auri");
+
+  // Load defaults from profile (if saved)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("aurify_profile");
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p.voice) setVoice(p.voice);
+        if (p.jellyfishName) setCoachName(p.jellyfishName);
+      }
+    } catch {}
+  }, []);
 
   const currentQuestion = useMemo(() => demoQuestions[scenario]?.[index] ?? "Let's begin.", [scenario, index]);
 
@@ -88,7 +103,14 @@ const Session = () => {
     if (started) speak(currentQuestion, voice);
   }, [started, index, voice, currentQuestion]);
 
-  // Basic (optional) browser speech recognition
+  // Auto-start for quiz mode (speak immediately)
+  useEffect(() => {
+    if (mode === "quiz" && !started) {
+      setStarted(true);
+    }
+  }, [mode, started]);
+
+// Basic (optional) browser speech recognition
   const recognitionRef = useRef<any>();
   useEffect(() => {
     const W = window as any;
@@ -109,6 +131,16 @@ const Session = () => {
     return () => rec.abort();
   }, []);
 
+  // Auto-activate mic for quiz mode
+  useEffect(() => {
+    const rec = recognitionRef.current;
+    if (mode === "quiz" && started && rec && !isRecording) {
+      setTranscript("");
+      rec.start();
+      setIsRecording(true);
+    }
+  }, [mode, started, isRecording]);
+
   const toggleMic = () => {
     const rec = recognitionRef.current;
     if (!rec) {
@@ -125,15 +157,63 @@ const Session = () => {
     }
   };
 
-  const onSend = () => {
+const onSend = () => {
+    const answer = transcript.trim();
+    const finalResponses = answer ? [...responses, answer] : [...responses];
+
     if (index < 4) {
+      setResponses(finalResponses);
       setIndex(index + 1);
       setTranscript("");
+      setTimeLeft(30);
     } else {
+      // Finish
       setStarted(false);
-      toast({ title: "Session complete", description: "Showing demo feedback below." });
+      setIsRecording(false);
+      // Simple demo scoring
+      const base = mode === "quiz" ? 70 : 75;
+      const scores = [
+        { name: "Confidence", score: base + Math.floor(Math.random() * 20) },
+        { name: "Clarity", score: base + Math.floor(Math.random() * 20) },
+        { name: "Empathy", score: base - 5 + Math.floor(Math.random() * 20) },
+        { name: "Relevance", score: base + Math.floor(Math.random() * 20) },
+        { name: "Energy", score: base - 10 + Math.floor(Math.random() * 20) },
+      ];
+      try {
+        const raw = localStorage.getItem("aurify_history");
+        const list = raw ? JSON.parse(raw) : [];
+        list.unshift({
+          id: Date.now(),
+          createdAt: new Date().toISOString(),
+          scenario,
+          mode,
+          coachName,
+          voice,
+          responses: finalResponses,
+          scores,
+        });
+        localStorage.setItem("aurify_history", JSON.stringify(list));
+      } catch {}
+      toast({ title: "Session complete", description: "Saved to History. See feedback below." });
     }
   };
+
+  // Quiz timer: auto-advance when time is up
+  useEffect(() => {
+    if (!(started && mode === "quiz")) return;
+    setTimeLeft(30);
+    const id = setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1) {
+          clearInterval(id);
+          onSend();
+          return 30;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [started, index, mode]);
 
   return (
     <main className="container mx-auto max-w-4xl px-4 pb-24 pt-10">
@@ -153,7 +233,7 @@ const Session = () => {
         <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-1">
             <label className="text-sm">Jellyfish name</label>
-            <Input defaultValue="Auri" aria-label="Jellyfish name" />
+            <Input value={coachName} onChange={(e) => setCoachName(e.target.value)} aria-label="Jellyfish name" />
           </div>
           <div className="md:col-span-1">
             <label className="text-sm">Voice</label>
@@ -179,8 +259,13 @@ const Session = () => {
       {started && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Question {index + 1} of 5</CardTitle>
-            <CardDescription>{currentQuestion}</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Question {index + 1} of 5</CardTitle>
+                <CardDescription>{currentQuestion}</CardDescription>
+              </div>
+              {mode === "quiz" && <div className="text-sm text-muted-foreground">Time: {timeLeft}s</div>}
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <Textarea placeholder="Live transcription appears here (or type manually)" value={transcript} onChange={(e) => setTranscript(e.target.value)} className="min-h-[120px]" />
@@ -195,8 +280,8 @@ const Session = () => {
       {!started && index === 4 && (
         <Card>
           <CardHeader>
-            <CardTitle>Feedback (Demo)</CardTitle>
-            <CardDescription>Detailed AI breakdown and scores will appear here once Supabase + AI are connected.</CardDescription>
+            <CardTitle>Feedback</CardTitle>
+            <CardDescription>Saved to History. This will be AI-generated once connected.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
@@ -216,10 +301,10 @@ const Session = () => {
               ))}
             </div>
             <div className="mt-6 grid gap-3">
-              <p className="text-sm text-muted-foreground">Advice: Focus on concise openings and concrete metrics. Slow down slightly and emphasize outcomes.</p>
+              <p className="text-sm text-muted-foreground">{mode === "quiz" ? "Advice: Be concise under pressure. Answer directly, avoid filler, and lead with impact metrics." : "Advice: Focus on concise openings and concrete metrics. Slow down slightly and emphasize outcomes."}</p>
               <div className="flex gap-3">
-                <Button onClick={() => { localStorage.setItem("aurify_saved_demo", "1"); toast({ title: "Saved (Demo)", description: "Connect Supabase to persist history securely." }); }}>Save to History</Button>
                 <Button variant="outline" onClick={() => window.location.assign("/history")}>View History</Button>
+                <Button onClick={() => window.location.assign(`/session?mode=${mode}&scenario=${encodeURIComponent(scenario)}`)}>Retry</Button>
               </div>
             </div>
           </CardContent>
