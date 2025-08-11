@@ -6,98 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Mail, User, Lock } from "lucide-react";
 import { Chrome } from "lucide-react";
-
-// Mock authentication hook - replace with real OAuth provider
-const useAuth = () => {
-  const [loading, setLoading] = useState(false);
-
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    try {
-      // Mock Google sign-in
-      const mockUser = {
-        id: 'google_' + Math.random().toString(36).substr(2, 9),
-        email: 'demo.user@gmail.com',
-        name: 'Demo User',
-        avatar: null,
-        provider: 'google',
-        createdAt: new Date().toISOString()
-      };
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Store user data
-      localStorage.setItem('aurify_user', JSON.stringify(mockUser));
-      localStorage.setItem('aurify_auth_token', 'mock_google_token_' + Math.random().toString(36).substr(2, 16));
-      
-      return mockUser;
-    } catch (error) {
-      throw new Error('Failed to sign in with Google');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithEmail = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      // Mock email sign-in
-      const mockUser = {
-        id: 'email_' + Math.random().toString(36).substr(2, 9),
-        email,
-        name: email.split('@')[0],
-        avatar: null,
-        provider: 'email',
-        createdAt: new Date().toISOString()
-      };
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      localStorage.setItem('aurify_user', JSON.stringify(mockUser));
-      localStorage.setItem('aurify_auth_token', 'mock_email_token_' + Math.random().toString(36).substr(2, 16));
-      
-      return mockUser;
-    } catch (error) {
-      throw new Error('Failed to sign in with email');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUpWithEmail = async (email: string, password: string, name: string) => {
-    setLoading(true);
-    try {
-      // Mock email sign-up
-      const mockUser = {
-        id: 'email_' + Math.random().toString(36).substr(2, 9),
-        email,
-        name,
-        avatar: null,
-        provider: 'email',
-        createdAt: new Date().toISOString()
-      };
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      localStorage.setItem('aurify_user', JSON.stringify(mockUser));
-      localStorage.setItem('aurify_auth_token', 'mock_email_token_' + Math.random().toString(36).substr(2, 16));
-      
-      return mockUser;
-    } catch (error) {
-      throw new Error('Failed to sign up with email');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    signInWithGoogle,
-    signInWithEmail,
-    signUpWithEmail,
-    loading
-  };
-};
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   useSEO({ 
@@ -116,18 +25,10 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const user = await signInWithGoogle();
-      toast({ 
-        title: "Welcome back!", 
-        description: `Signed in as ${user.name}` 
-      });
+      await signInWithGoogle();
       navigate("/");
     } catch (error) {
-      toast({ 
-        title: "Sign in failed", 
-        description: "Please try again later", 
-        variant: "destructive" 
-      });
+      // Error is already handled in the auth context
     }
   };
 
@@ -144,21 +45,14 @@ const Login = () => {
     }
 
     try {
-      const user = isSignUp 
-        ? await signUpWithEmail(email, password, name)
-        : await signInWithEmail(email, password);
-      
-      toast({ 
-        title: isSignUp ? "Account created!" : "Welcome back!", 
-        description: `Signed in as ${user.name}` 
-      });
+      if (isSignUp) {
+        await signUpWithEmail(email, password, name);
+      } else {
+        await signInWithEmail(email, password);
+      }
       navigate("/");
     } catch (error) {
-      toast({ 
-        title: isSignUp ? "Sign up failed" : "Sign in failed", 
-        description: "Please check your credentials and try again", 
-        variant: "destructive" 
-      });
+      // Error is already handled in the auth context
     }
   };
 
@@ -166,7 +60,7 @@ const Login = () => {
     localStorage.setItem("aurify_guest", "1");
     toast({ 
       title: "Guest mode activated", 
-      description: "You can explore all features. No login required." 
+      description: "You can explore all features. No login required."
     });
     navigate("/");
   };

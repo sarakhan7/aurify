@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
   { to: "/practice", label: "Practice" },
@@ -11,30 +11,11 @@ const links = [
   { to: "/faq", label: "FAQ" },
 ];
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  provider: 'google' | 'email';
-}
-
 const Header = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, logout } = useAuth();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('aurify_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const handleSignOut = () => {
-    localStorage.removeItem('aurify_user');
-    localStorage.removeItem('aurify_auth_token');
-    localStorage.removeItem('aurify_guest');
-    setUser(null);
-    window.location.reload();
+  const handleSignOut = async () => {
+    await logout();
   };
 
   const getInitials = (name: string) => {
@@ -66,7 +47,7 @@ const Header = () => {
             <>
               <Link to="/profile">
                 <Avatar className="h-8 w-8 cursor-pointer">
-                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                  <AvatarFallback>{getInitials(user.displayName || user.email || '')}</AvatarFallback>
                 </Avatar>
               </Link>
               <Button variant="ghost" size="sm" onClick={handleSignOut}>

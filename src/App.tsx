@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Practice from "./pages/Practice";
@@ -14,8 +15,8 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import BottomNav from "@/components/layout/BottomNav";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Session from "./pages/Session";
 
@@ -48,11 +49,13 @@ const AppInner = () => {
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AppInner />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AppInner />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );
